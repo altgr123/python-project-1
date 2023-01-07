@@ -1,135 +1,120 @@
-#####################################CALCULATOR########################################################
+from turtle import *
+from datetime import datetime
 
-from tkinter import *
-#####################################################3FUNCTION#############################################
+def jump(distanz, winkel=0):
+    penup()
+    right(winkel)
+    forward(distanz)
+    left(winkel)
+    pendown()
 
-def button_click(xyz):
-    abc = a.get()
-    a.delete(0,END)
-    a.insert(0,str(abc + str(xyz)))
+def hand(laenge, spitze):
+    fd(laenge*1.15)
+    rt(90)
+    fd(spitze/2.0)
+    lt(120)
+    fd(spitze)
+    lt(120)
+    fd(spitze)
+    lt(120)
+    fd(spitze/2.0)
 
-def clear():
-    a.delete(0,END)
+def make_hand_shape(name, laenge, spitze):
+    reset()
+    jump(-laenge*0.15)
+    begin_poly()
+    hand(laenge, spitze)
+    end_poly()
+    hand_form = get_poly()
+    register_shape(name, hand_form)
 
-def add():
-    num_1 = a.get()
-    global num
-    global work
-    num = int(num_1)
-    work = "add"
-    a.delete(0,END)
+def clockface(radius):
+    reset()
+    pensize(7)
+    for i in range(60):
+        jump(radius)
+        if i % 5 == 0:
+            fd(25)
+            jump(-radius-25)
+        else:
+            dot(3)
+            jump(-radius)
+        rt(6)
 
-def multi():
-    num_1 = a.get()
-    global num
-    global work
-    num = int(num_1)
-    work = "multi"
-    a.delete(0, END)
+def setup():
+    global second_hand, minute_hand, hour_hand, writer
+    mode("logo")
+    make_hand_shape("second_hand", 125, 25)
+    make_hand_shape("minute_hand",  130, 25)
+    make_hand_shape("hour_hand", 90, 25)
+    clockface(160)
+    second_hand = Turtle()
+    second_hand.shape("second_hand")
+    second_hand.color("gray20", "gray80")
+    minute_hand = Turtle()
+    minute_hand.shape("minute_hand")
+    minute_hand.color("blue1", "red1")
+    hour_hand = Turtle()
+    hour_hand.shape("hour_hand")
+    hour_hand.color("blue3", "red3")
+    for hand in second_hand, minute_hand, hour_hand:
+        hand.resizemode("user")
+        hand.shapesize(1, 1, 3)
+        hand.speed(0)
+    ht()
+    writer = Turtle()
+    #writer.mode("logo")
+    writer.ht()
+    writer.pu()
+    writer.bk(85)
 
+def wochentag(t):
+    wochentag = ["Monday", "Tuesday", "Wednesday",
+        "Thursday", "Friday", "Saturday", "Sunday"]
+    return wochentag[t.weekday()]
 
-def divi():
-    num_1 = a.get()
-    global num
-    global work
-    num = int(num_1)
-    work = "divi"
-    a.delete(0, END)
+def datum(z):
+    monat = ["Jan.", "Feb.", "Mar.", "Apr.", "May", "June",
+             "July", "Aug.", "Sep.", "Oct.", "Nov.", "Dec."]
+    j = z.year
+    m = monat[z.month - 1]
+    t = z.day
+    return "%s %d %d" % (m, t, j)
 
+def tick():
+    t = datetime.today()
+    sekunde = t.second + t.microsecond*0.000001
+    minute = t.minute + sekunde/60.0
+    stunde = t.hour + minute/60.0
+    try:
+        tracer(False)  # Terminator can occur here
+        writer.clear()
+        writer.home()
+        writer.forward(120)
+        writer.write(wochentag(t),
+                     align="center", font=("Courier", 12, "bold"))
+        writer.back(150)
+        writer.write(datum(t),
+                     align="center", font=("Courier", 12, "bold"))
+        writer.forward(50)
+        tracer(True)
+        second_hand.setheading(6*sekunde)  # or here
+        minute_hand.setheading(6*minute)
+        hour_hand.setheading(30*stunde)
+        tracer(True)
+        ontimer(tick, 100)
+    except Terminator:
+        pass  # turtledemo user pressed STOP
 
-def sub():
-    num_1 = a.get()
-    global num
-    global work
-    num = int(num_1)
-    work = "sub"
-    a.delete(0, END)
+def main():
+    tracer(False)
+    setup()
+    tracer(True)
+    tick()
+    return "EVENTLOOP"
 
-def equal():
-    num_2 = a.get()
-    a.delete(0,END)
-
-    if work == "add":
-        a.insert(0,num + int(num_2))
-
-    if work == "multi":
-        a.insert(0,num * int(num_2))
-
-    if work == "sub":
-        a.insert(0,num - int(num_2))
-
-    if work == "divi":
-        a.insert(0,num / int(num_2))
-
-#############################################################################################################
-
-root = Tk()
-
-root.title("Worst Calculator")
-root.resizable(False,False)
-root.config(bg="gray")
-
-a = Entry(root, font=("","30","bold"), bg="lightblue" , fg="red" ,justify="left",bd=40)
-a.grid(columnspan=4)
-buttton_1 = Button(root, font=("","30","bold"),bg="red" , fg="black", text="1", bd=14, padx=20,pady=10,activebackground="black", activeforeground="red",command=lambda:button_click(1))
-buttton_1.grid(row=1,column=0)
-
-buttton_2 = Button(root, font=("","30","bold"),bg="red",fg="black",text="2",bd=14, padx=20,pady=10,activebackground="black",activeforeground="red",command=lambda:button_click(2))
-buttton_2.grid(row=1,column=1)
-
-buttton_3 = Button(root, font=("","30","bold"),bg="red",fg="black",text="3",bd=14, padx=20,pady=10,activeforeground="black", activebackground="red",command=lambda:button_click(3))
-buttton_3.grid(row=1,column=2)
-
-
-buttton_4 = Button(root, font=("","30","bold"),bg="red",fg="black",text="4",bd=14, padx=20,pady=10,activeforeground="black", activebackground="red",command=lambda:button_click(4))
-buttton_4.grid(row=2,column=0)
-
-
-buttton_5 = Button(root, font=("","30","bold"),bg="red",fg="black",text="5",bd=14, padx=20,pady=10,activeforeground="black", activebackground="red",command=lambda:button_click(5))
-buttton_5.grid(row=2,column=1)
-
-
-buttton_6 = Button(root, font=("","30","bold"),bg="red",fg="black",text="6",bd=14, padx=20,pady=10,activeforeground="black", activebackground="red",command=lambda:button_click(6))
-buttton_6.grid(row=2,column=2)
-
-
-buttton_7 = Button(root, font=("","30","bold"),bg="red",fg="black",text="7",bd=14, padx=20,pady=10,activeforeground="black", activebackground="red",command=lambda:button_click(7))
-buttton_7.grid(row=3,column=0)
-
-
-buttton_8 = Button(root, font=("","30","bold"),bg="red",fg="black",text="8",bd=14, padx=20,pady=10,activeforeground="black", activebackground="red",command=lambda:button_click(8))
-buttton_8.grid(row=3,column=1)
-
-
-buttton_9 = Button(root, font=("","30","bold"),bg="red",fg="black",text="9",bd=14, padx=20,pady=10,activeforeground="black", activebackground="red",command=lambda:button_click(9))
-buttton_9.grid(row=3,column=2)
-
-
-buttton_0 = Button(root, font=("","30","bold"),bg="red",fg="black",text="0",bd=14, padx=20,pady=10,activeforeground="black", activebackground="red",command=lambda:button_click(0))
-buttton_0.grid(row=4,column=0)
-
-
-buttton_add = Button(root, font=("","30","bold"),bg="black",fg="red",text="+",bd=14, padx=20,pady=10,activeforeground="black", activebackground="red", command=lambda:add())
-buttton_add.grid(row=1,column=3)
-
-
-buttton_equal = Button(root, font=("","30","bold"),bg="black",fg="red",text="=",bd=14, padx=20,pady=10,activeforeground="black", activebackground="red", command=lambda:equal())
-buttton_equal.grid(row=4,column=2)
-
-
-buttton_clear = Button(root, font=("","30","bold"),bg="black",fg="red",text="c",bd=14, padx=20,pady=10,activeforeground="black", activebackground="red",command=lambda:clear())
-buttton_clear.grid(row=4,column=1)
-
-
-buttton_multi = Button(root, font=("","30","bold"),bg="black",fg="red",text="x",bd=14, padx=20,pady=10,activeforeground="black", activebackground="red", command=lambda:multi())
-buttton_multi.grid(row=3,column=3)
-
-
-buttton_sub = Button(root, font=("","30","bold"),bg="black",fg="red",text="-",bd=14, padx=20,pady=10,activeforeground="black", activebackground="red", command=lambda:sub())
-buttton_sub.grid(row=2,column=3)
-
-
-buttton_divi = Button(root, font=("","30","bold"),bg="black",fg="red",text="/",bd=14, padx=20,pady=10,activeforeground="black", activebackground="red", command=lambda:sub())
-buttton_divi.grid(row=4,column=3)
-
-root.mainloop()
+if __name__ == "__main__":
+    mode("logo")
+    msg = main()
+    print(msg)
+    mainloop()
